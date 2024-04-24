@@ -4,7 +4,7 @@ import os
 from time import strftime
 
 
-def iniciar():
+def start():
 
     global home_score
     global away_score
@@ -20,7 +20,7 @@ def iniciar():
     setOutput('00:00', 'time')
 
     play = False
-    etiqueta = "Iniciar"
+    etiqueta = "Start"
     segundos = 0
     minutos = 0
     home_score = 0
@@ -84,9 +84,9 @@ def toggle():
 
     play = not play
     if play:
-        text = "Pausa"
+        text = "Pause"
     else:
-        text = "Play"
+        text = "Start"
 
     btn_play.config(text=text)
 
@@ -177,7 +177,7 @@ def getOutput(name):
 version = "v0.1"  # 2024-04-24
 root = Tk()
 root.geometry("600x200")
-root.title("SCOREBOARDMX " + version + " - EL JUEGO PERFECTO MX")
+root.title("Scoreboard MX " + version + " - El Juego Perfecto MX")
 root.resizable(False, False)
 
 icon_file = "icon.ico"
@@ -192,25 +192,25 @@ global etiqueta
 
 path = "output"
 etiqueta = "Start"
-home_name = "HOME"
+home_name = "Home"
 home_score = 0
-away_name = "AWAY"
+away_name = "Away"
 away_score = 0
 
 # HOME
-lbl_home = Label(root, text="HOME", anchor="w", justify=LEFT, width=22)
+lbl_home = Label(root, text="Home", anchor="w", justify=LEFT, width=22)
 txt_home_name = Entry(root, width=30)
 txt_home_name.bind("<FocusOut>", on_focus_out)
 txt_home_name.insert(0, home_name)
 
 # AWAY
-lbl_away = Label(root, text="AWAY", anchor="w", justify=LEFT, width=22)
+lbl_away = Label(root, text="Away", anchor="w", justify=LEFT, width=22)
 txt_away_name = Entry(root, width=30)
 txt_away_name.bind("<FocusOut>", on_focus_out)
 txt_away_name.insert(0, away_name)
 
 # TIEMPO
-lbl_tiempo = Label(root, text="TIME", anchor="w", justify=LEFT, width=22)
+lbl_tiempo = Label(root, text="Time", anchor="w", justify=LEFT, width=22)
 
 spn_minutos = Spinbox(from_=0, to=1000, increment=1,
                       command=lambda v='minutos': setTime(v))
@@ -242,11 +242,11 @@ lbl_tiempo.grid(row=3, column=0)
 spn_minutos.grid(row=3, column=1)
 spn_segundos.grid(row=3, column=2)
 
-lbl_team_name = Label(root, text="NAME",
+lbl_team_name = Label(root, text="Name",
                       anchor="w", justify=LEFT, width=22)
 lbl_team_name.grid(row=4, column=1)
 
-lbl_team_score = Label(root, text="SCORE",
+lbl_team_score = Label(root, text="Score",
                        anchor="w", justify=LEFT, width=22)
 lbl_team_score.grid(row=4, column=2)
 
@@ -264,5 +264,5 @@ btn_restart = Button(root, text="Restart", command=restart)
 btn_play.grid(row=1, column=0)
 btn_restart.grid(row=1, column=1)
 
-iniciar()
+start()
 root.mainloop()
