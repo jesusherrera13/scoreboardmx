@@ -17,30 +17,31 @@ def contador():
     global away_score
 
     if play:
+        inc = True
+        if direction.get() == 'ASC':
+            shift = 1
+            if segundos > 59:
+                minutos += 1
+                segundos = 0
+        else:
+            shift = -1
+            if segundos == 0 and minutos == 0:
+                inc = False
 
-        s = ''
-        m = ''
+            if inc and segundos == 0:
+                if (minutos > 0):
+                    minutos -= 1
+                segundos = 59
 
-        if (segundos > 59):
-            minutos += 1
-            segundos = 0
-
-        if (segundos < 10):
-            s = '0'
-
-        if (minutos < 10):
-            m = '0'
-
-        m_ = m + str(minutos)
-        s_ = s + str(segundos)
-        time_ = m_ + ':' + s_
-
+        time_ = getTime()
         writeOutput('time', time_)
         lbl_time.config(text=time_)
         txt_time.delete(0, END)
         txt_time.insert(0, time_)
         root.after(1000, contador)
-        segundos += 1
+
+        if (inc):
+            segundos += 1 * shift
 
 
 def toggle():
@@ -50,18 +51,18 @@ def toggle():
     play = not play
 
     x = 335
-    y = 75
+    y = 71
     if play:
         img_path = "assets/pause.png"
         txt_time.place_forget()
-        lbl_time.place(x=x+8, y=y+1)
+        lbl_time.place(x=x+8, y=y)
         btn_time_minutes_add.config(state=DISABLED)
         btn_time_minutes_substract.config(state=DISABLED)
         btn_time_seconds_add.config(state=DISABLED)
         btn_time_seconds_substract.config(state=DISABLED)
     else:
         img_path = "assets/play.png"
-        txt_time.place(x=x, y=y)
+        txt_time.place(x=x, y=y-1)
         lbl_time.place_forget()
         btn_time_minutes_add.config(state=WRITABLE)
         btn_time_minutes_substract.config(state=WRITABLE)
@@ -92,6 +93,9 @@ def restart():
     txt_home_score.insert(0, home_score)
     txt_away_score.delete(0, END)
     txt_away_score.insert(0, away_score)
+    txt_time.delete(0, END)
+    txt_time.insert(0, time_)
+    lbl_time.config(text=time_)
     writeOutput('time', time_)
     writeOutput('home_score', home_score)
     writeOutput('away_score', away_score)
@@ -312,7 +316,6 @@ def logo(target):
             lbl_away.image = photo  # Keep a reference to avoid garbage collection
 
         save_image(target, file_path)
-        # messagebox.showinfo("Success", "Image uploaded successfully!")
 
 
 def save_image(target, file_path):
@@ -352,29 +355,81 @@ def getTime():
 
     return m + ':' + s
 
+
+def openNewWindow():
+    newWindow = Toplevel(root)
+    newWindow.title("ScoreboardMX")
+    newWindow.geometry("300x200")
+    newWindow.resizable(False, False)
+    newWindow.attributes('-topmost', True)
+
+    # A Label widget to show in toplevel
+    text = "Scoreboard MX 1.0"
+    text += "\n\n"
+    text += "\neljuegoperfectomx13@gmail.com"
+    text += "\n\n"
+    text += "\nJesús Herrera"
+    text += "\nLuis Franco"
+    text += "\nYoby Mora"
+    text += "\n\n"
+    text += "\nMazatlán, Sinaloa, México"
+
+    Label(newWindow,
+          text=text).pack()
+
+
+def toggleClock():
+    global clock_asc
+    writeOutput('timer_direction', direction.get())
 ############
 
 
 version = "v0.1"  # 2024-04-24
 root = Tk()
-root.geometry("850x250")
-root.title("Scoreboard MX " + version + " - El Juego Perfecto MX")
+root.geometry("850x300")
+root.title("Scoreboard MX")
 root.resizable(False, False)
 
-img = "assets/icon.ico"
-if (os.path.exists(img)):
-    root.iconbitmap(img)
+menubar = Menu(root)
+filemenu = Menu(menubar, tearoff=False)
+filemenu.add_command(
+    label="About",
+    command=openNewWindow,
+    compound=LEFT
+)
 
+menubar.add_cascade(label="File", menu=filemenu)
+
+root.config(menu=menubar)
+
+# VARS
 global path
 global etiqueta
 global home_name
 global home_score
 global play
+global clock_asc
 
 play = False
-
 path = "output"
 etiqueta = "Start"
+clock_asc = True
+
+direction = StringVar()
+
+timer_direction = getOutput('timer_direction')
+if timer_direction:
+    if timer_direction.upper() != 'ASC' and timer_direction.upper() != 'DESC':
+        timer_direction = 'ASC'
+else:
+    timer_direction = 'ASC'
+
+direction.set(timer_direction)
+# VARS
+
+img = "assets/icon.ico"
+if (os.path.exists(img)):
+    root.iconbitmap(img)
 
 home_name = getOutput('home_name')
 if home_name == '':
@@ -430,19 +485,52 @@ btn_restart.pack(side=LEFT, padx=2, pady=2)
 toolbar.place(x=0, y=0)
 toolbar.pack(side=TOP, fill=X)
 
-nw = 12
-y = 75
+y = 50
 x = 5
 
-lbl_home = Label(root, text="Home", width=22)
-lbl_home.bind("<Button-1>", lambda e: logo('home_logo'))
-lbl_home.place(x=x+30, y=y+50)
+font = ('Arial', 12)
+lbl = Label(root, text="Team", width=22, font=font)
+lbl.place(x=x, y=y)
+
+lbl = Label(root, text="Score", width=22, font=font)
+lbl.place(x=x+165, y=y)
+
+lbl = Label(root, text="Time", width=22, font=font)
+lbl.place(x=x+295, y=y)
+
+options = [("Ascendant", "ASC"), ("Descendant", "DESC")]
+xx = 0
+
+for language, val in options:
+    radio = Radiobutton(root,
+                        text=language,
+                        # padx=20,
+                        variable=direction,
+                        command=toggleClock,
+                        value=val)
+    radio.place(x=x+295+xx, y=y+90)
+    xx += 80
+
+lbl = Label(root, text="Score", width=22, font=font)
+lbl.place(x=x+530, y=y)
+
+lbl = Label(root, text="Team", width=22, font=font)
+lbl.place(x=x+650, y=y)
+
+nw = 12
+y += 20
+x = 5
 
 txt_home_name = Entry(root, width=nw,
                       font=('Arial', 18))
 txt_home_name.place(x=x, y=y)
 txt_home_name.bind("<FocusOut>", on_focus_out)
 txt_home_name.insert(0, home_name)
+
+lbl_home = Label(root, text="Home logo", width=22,
+                 borderwidth=1, relief="groove")
+lbl_home.bind("<Button-1>", lambda e: logo('home_logo'))
+lbl_home.place(x=x+25, y=y+50)
 
 btn_homescore_add = Button(root, text="+", width=10,
                            command=lambda: scoreUpdate('home_score', 1))
@@ -463,9 +551,8 @@ btn_homescore_substract = Button(
     root, text="+", width=10, command=lambda: scoreUpdate('home_score', -1))
 btn_homescore_substract.place(x=x, y=y)
 
-
 # TIME
-y = 75
+y = 70
 x = x + 50
 btn_time_minutes_add = Button(
     text="+", command=lambda: timeUpdate('minutos', 1))
@@ -494,19 +581,17 @@ btn_time_seconds_substract = Button(
     text="+", command=lambda: timeUpdate('segundos', -1))
 btn_time_seconds_substract.place(x=x, y=y+35)
 
-y = 75
+y = 70
 x += 50
 
-lbl_away = Label(root, text="Away", width=22)
+lbl_away = Label(root, text="Away logo", width=22,
+                 borderwidth=1, relief="groove")
 lbl_away.bind("<Button-1>", lambda e: logo('away_logo'))
-lbl_away.place(x=x+30, y=y+50)
-
-# x = x + 20
+lbl_away.place(x=x+145, y=y+50)
 
 btn_awayscore_add = Button(root, text="+", width=10,
                            command=lambda: scoreUpdate('away_score', 1))
 btn_awayscore_add.place(x=x, y=y)
-
 
 x = x + 35
 
