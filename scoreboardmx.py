@@ -191,16 +191,6 @@ def on_focus_out(event):
             widget.insert(0, value)
 
 
-def setScore(v):
-    txt = ''
-    if v == 'home_score':
-        txt = spn_home_score.get()
-    else:
-        txt = spn_away_score.get()
-
-    writeOutput(txt, v)
-
-
 def scoreUpdate(target, value):
     global home_score
     global away_score
@@ -532,7 +522,7 @@ lbl_home = Label(root, text="Home logo", width=22,
 lbl_home.bind("<Button-1>", lambda e: logo('home_logo'))
 lbl_home.place(x=x+25, y=y+50)
 
-btn_homescore_add = Button(root, text="+", width=10,
+btn_homescore_add = Button(root, text="+", width=4,
                            command=lambda: scoreUpdate('home_score', 1))
 x = x + 165
 btn_homescore_add.place(x=x, y=y)
@@ -548,18 +538,18 @@ txt_home_score.insert(0, home_score)
 x = x + 45
 
 btn_homescore_substract = Button(
-    root, text="+", width=10, command=lambda: scoreUpdate('home_score', -1))
+    root, text="-", width=4, command=lambda: scoreUpdate('home_score', -1))
 btn_homescore_substract.place(x=x, y=y)
 
 # TIME
 y = 70
 x = x + 50
 btn_time_minutes_add = Button(
-    text="+", command=lambda: timeUpdate('minutos', 1))
+    text="+", width=4, command=lambda: timeUpdate('minutos', 1))
 btn_time_minutes_add.place(x=x, y=y)
 
 btn_time_minutes_substract = Button(
-    text="+", command=lambda: timeUpdate('minutos', -1))
+    text="-", width=4, command=lambda: timeUpdate('minutos', -1))
 btn_time_minutes_substract.place(x=x, y=y+35)
 
 x = x + 35
@@ -574,11 +564,11 @@ lbl_time = Label(root, text=time, font=('Arial', 40), justify=CENTER)
 x = x + 152
 
 btn_time_seconds_add = Button(
-    text="+", command=lambda: timeUpdate('segundos', 1))
+    text="+", width=4, command=lambda: timeUpdate('segundos', 1))
 btn_time_seconds_add.place(x=x, y=y)
 
 btn_time_seconds_substract = Button(
-    text="+", command=lambda: timeUpdate('segundos', -1))
+    text="-",  width=4, command=lambda: timeUpdate('segundos', -1))
 btn_time_seconds_substract.place(x=x, y=y+35)
 
 y = 70
@@ -589,7 +579,7 @@ lbl_away = Label(root, text="Away logo", width=22,
 lbl_away.bind("<Button-1>", lambda e: logo('away_logo'))
 lbl_away.place(x=x+145, y=y+50)
 
-btn_awayscore_add = Button(root, text="+", width=10,
+btn_awayscore_add = Button(root, text="+", width=4,
                            command=lambda: scoreUpdate('away_score', 1))
 btn_awayscore_add.place(x=x, y=y)
 
@@ -603,7 +593,7 @@ txt_away_score.insert(0, away_score)
 
 x += 45
 btn_awayscore_substract = Button(
-    root, text="+", width=10, command=lambda: scoreUpdate('away_score', -1))
+    root, text="-", width=4, command=lambda: scoreUpdate('away_score', -1))
 btn_awayscore_substract.place(x=x, y=y)
 
 x += 40
