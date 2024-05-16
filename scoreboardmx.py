@@ -371,6 +371,17 @@ def openNewWindow():
 def toggleClock():
     global clock_asc
     writeOutput('timer_direction', direction.get())
+
+
+def setLanguage():
+    writeOutput('lang', language.get())
+    lbl_team_1.config(text=diccionario[language.get()]["team"])
+    lbl_team_2.config(text=diccionario[language.get()]["team"])
+    lbl_score_1.config(text=diccionario[language.get()]["score"])
+    lbl_score_2.config(text=diccionario[language.get()]["score"])
+    lbl_timer.config(text=diccionario[language.get()]["timer"])
+    radio_asc.config(text=diccionario[language.get()]["asc"])
+    radio_desc.config(text=diccionario[language.get()]["desc"])
 ############
 
 
@@ -406,6 +417,38 @@ etiqueta = "Start"
 clock_asc = True
 
 direction = StringVar()
+language = StringVar()
+
+diccionario = {
+    "ES": {
+        "team": "Equipo",
+        "score": "Marcador",
+        "timer": "Tiempo",
+        "asc": "Ascendente",
+        "desc": "Descendente"
+    },
+    "FR": {
+        "team": "Équipe",
+        "score": "Score",
+        "timer": "Temps",
+        "asc": "Ascendant",
+        "desc": "Descendant"
+    },
+    "EN": {
+        "team": "Team",
+        "score": "Score",
+        "timer": "Time",
+        "asc": "Ascendant",
+        "desc": "Descending"
+    },
+    "ZH": {
+        "team": "团队",
+        "score": "总谱",
+        "timer": "时间",
+        "asc": "升序",
+        "desc": "降序"
+    }
+}
 
 timer_direction = getOutput('timer_direction')
 if timer_direction:
@@ -420,6 +463,13 @@ direction.set(timer_direction)
 img = "assets/icon.ico"
 if (os.path.exists(img)):
     root.iconbitmap(img)
+
+lang = getOutput('lang')
+if lang == '':
+    lang = 'ES'
+
+writeOutput('lang', lang)
+language.set(lang)
 
 home_name = getOutput('home_name')
 if home_name == '':
@@ -450,6 +500,8 @@ if away_score:
         away_score = int(getOutput('away_score'))
     else:
         away_score = 0
+else:
+    away_score = 0
 
 writeOutput('away_score', away_score)
 
@@ -472,40 +524,51 @@ btn_play.pack(side=LEFT, padx=2, pady=2)
 btn_restart = Button(toolbar, text="Restart", command=restart)
 btn_restart.pack(side=LEFT, padx=2, pady=2)
 
+
 toolbar.place(x=0, y=0)
 toolbar.pack(side=TOP, fill=X)
+
 
 y = 50
 x = 5
 
 font = ('Arial', 12)
-lbl = Label(root, text="Team", width=22, font=font)
-lbl.place(x=x, y=y)
+lbl_team_1 = Label(root, text="Team", width=22, font=font)
+lbl_team_1.place(x=x, y=y)
 
-lbl = Label(root, text="Score", width=22, font=font)
-lbl.place(x=x+165, y=y)
+lbl_score_1 = Label(root, text="Score", width=22, font=font)
+lbl_score_1.place(x=x+165, y=y)
 
-lbl = Label(root, text="Time", width=22, font=font)
-lbl.place(x=x+295, y=y)
+lbl_timer = Label(root, text="Time", width=22, font=font)
+lbl_timer.place(x=x+295, y=y)
 
 options = [("Ascendant", "ASC"), ("Descendant", "DESC")]
 xx = 0
 
-for language, val in options:
-    radio = Radiobutton(root,
-                        text=language,
-                        # padx=20,
-                        variable=direction,
-                        command=toggleClock,
-                        value=val)
-    radio.place(x=x+295+xx, y=y+90)
-    xx += 80
+for order, val in options:
+    if val == "ASC":
+        radio_asc = Radiobutton(root,
+                                text=order,
+                                # padx=20,
+                                variable=direction,
+                                command=toggleClock,
+                                value=val)
+        radio_asc.place(x=x+295+xx, y=y+90)
+    else:
+        radio_desc = Radiobutton(root,
+                                 text=order,
+                                 # padx=20,
+                                 variable=direction,
+                                 command=toggleClock,
+                                 value=val)
+        radio_desc.place(x=x+295+xx, y=y+90)
+    xx += 90
 
-lbl = Label(root, text="Score", width=22, font=font)
-lbl.place(x=x+530, y=y)
+lbl_team_2 = Label(root, text="Score", width=22, font=font)
+lbl_team_2.place(x=x+530, y=y)
 
-lbl = Label(root, text="Team", width=22, font=font)
-lbl.place(x=x+650, y=y)
+lbl_score_2 = Label(root, text="Team", width=22, font=font)
+lbl_score_2.place(x=x+650, y=y)
 
 nw = 12
 y += 20
@@ -603,6 +666,26 @@ txt_away_name.place(x=x, y=y)
 txt_away_name.bind("<FocusOut>", on_focus_out)
 txt_away_name.insert(0, away_name)
 
+options = [("Español", "ES"), ("Francés", "FR"),
+           ("Inglés", "EN"), ("Chino", "ZH")]
+xx = 0
+count = 0
+for item, val in options:
+    radio = Radiobutton(toolbar,
+                        # text=item,
+                        # padx=20,
+                        variable=language,
+                        command=setLanguage,
+                        value=val)
+
+    lbl = Label(toolbar, text=val, width=3,
+                borderwidth=1)
+    setImage(lbl, "assets/"+val.lower()+".png")
+    lbl.pack(side=LEFT)
+    radio.pack(side=LEFT, padx=2)
+
+    xx += 100
+
 setImage(btn_play, "assets/play.png")
 setImage(btn_homescore_add, "assets/caret-up.png")
 setImage(btn_homescore_substract, "assets/arrow-down.png")
@@ -615,5 +698,6 @@ setImage(btn_time_minutes_substract, "assets/arrow-down.png")
 setImage(btn_time_seconds_add, "assets/caret-up.png")
 setImage(btn_time_seconds_substract, "assets/arrow-down.png")
 setImage(btn_awayscore_add, "assets/caret-up.png")
+setLanguage()
 
 root.mainloop()
