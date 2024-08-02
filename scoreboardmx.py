@@ -6,7 +6,8 @@ from tkinter import LEFT, TOP, X, FLAT, RAISED
 from PIL import Image, ImageTk
 from tkinter import filedialog as fd, messagebox
 import shutil
-
+from sys import platform
+from tktooltip import ToolTip
 
 def contador():
 
@@ -26,6 +27,7 @@ def contador():
         else:
             shift = -1
             if segundos == 0 and minutos == 0:
+                txt_time.config({"foreground":"#ff0000"})
                 inc = False
 
             if inc and segundos == 0:
@@ -363,6 +365,7 @@ def openNewWindow():
     text += "\nYoby Mora"
     text += "\n\n"
     text += "\nMazatlán, Sinaloa, México"
+    text += "\n2024-07-24"
 
     Label(newWindow,
           text=text).pack()
@@ -382,6 +385,8 @@ def setLanguage():
     lbl_timer.config(text=diccionario[language.get()]["timer"])
     radio_asc.config(text=diccionario[language.get()]["asc"])
     radio_desc.config(text=diccionario[language.get()]["desc"])
+    # btn_play.too
+    # ToolTip(btn_play, msg=diccionario[language.get()]["label_play"], delay=0.2)
 ############
 
 
@@ -425,28 +430,32 @@ diccionario = {
         "score": "Marcador",
         "timer": "Tiempo",
         "asc": "Ascendente",
-        "desc": "Descendente"
+        "desc": "Descendente",
+        "label_play": "Iniciar"
     },
     "FR": {
         "team": "Équipe",
         "score": "Score",
         "timer": "Temps",
         "asc": "Ascendant",
-        "desc": "Descendant"
+        "desc": "Descendant",
+        "label_play": "Commençer"
     },
     "EN": {
         "team": "Team",
         "score": "Score",
         "timer": "Time",
         "asc": "Ascendant",
-        "desc": "Descending"
+        "desc": "Descending",
+        "label_play": "start"
     },
     "ZH": {
         "team": "团队",
         "score": "总谱",
         "timer": "时间",
         "asc": "升序",
-        "desc": "降序"
+        "desc": "降序",
+        "label_play": "开始"
     }
 }
 
@@ -460,9 +469,16 @@ else:
 direction.set(timer_direction)
 # VARS
 
-img = "assets/icon.ico"
-if (os.path.exists(img)):
-    root.iconbitmap(img)
+if platform == "linux" or platform == "linux2":
+    im = Image.open('assets/icon.ico')
+    photo = ImageTk.PhotoImage(im)
+    root.wm_iconphoto(True, photo)
+elif platform == "darwin":
+    print("OS X")
+elif platform == "win32":
+    img = "assets/icon.ico"
+    if (os.path.exists(img)):
+        root.iconbitmap(img)
 
 lang = getOutput('lang')
 if lang == '':
@@ -473,7 +489,10 @@ language.set(lang)
 
 home_name = getOutput('home_name')
 if home_name == '':
-    home_name = 'HOME'
+    if lang == 'EN':
+        home_name = 'HOME'
+    else:
+        home_name = 'CASA'
 
 writeOutput('home_name', home_name)
 
@@ -490,7 +509,10 @@ writeOutput('home_score', home_score)
 
 away_name = getOutput('away_name')
 if away_name == '':
-    away_name = 'AWAY'
+    if lang == 'EN':
+        away_name = 'AWAY'
+    else:
+        away_name = 'VISITA'
 
 writeOutput('away_name', away_name)
 
@@ -508,6 +530,8 @@ writeOutput('away_score', away_score)
 time = getOutput('time')
 if not time:
     time = '00:00'
+    minutos = 0
+    segundos = 0
 else:
     tmp = time.split(':')
     minutos = int(tmp[0])
@@ -520,14 +544,19 @@ toolbar = Frame(root, border=1, relief=RAISED)
 
 btn_play = Button(toolbar, text=etiqueta, command=toggle)
 btn_play.pack(side=LEFT, padx=2, pady=2)
+if lang == 'EN':
+    msg = 'Start'
+else:
+    msg = 'Iniciar'
+
+# print(msg)
+# ToolTip(btn_play, msg=msg, delay=0.2)
 
 btn_restart = Button(toolbar, text="Restart", command=restart)
 btn_restart.pack(side=LEFT, padx=2, pady=2)
 
-
 toolbar.place(x=0, y=0)
 toolbar.pack(side=TOP, fill=X)
-
 
 y = 50
 x = 5
@@ -621,6 +650,7 @@ txt_time = Entry(root, width=5, font=('Arial', 40), justify=CENTER)
 txt_time.insert(0, time)
 txt_time.bind("<FocusOut>", on_focus_out)
 txt_time.place(x=x, y=y)
+# txt_time.config(bg="green")
 
 lbl_time = Label(root, text=time, font=('Arial', 40), justify=CENTER)
 
