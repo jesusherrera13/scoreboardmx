@@ -1,8 +1,9 @@
 import tkinter as tk
-from tkinter import ttk, Menu, LEFT, TOP, X, RAISED, StringVar,Toplevel, Button, Frame, DISABLED, Label,Radiobutton, Entry, END, CENTER, WRITABLE, ACTIVE
+from tkinter import ttk, Menu, LEFT, TOP, X, RAISED, StringVar,Toplevel, Button, Frame, DISABLED, Label,Radiobutton, Entry, END, CENTER, WRITABLE, ACTIVE, filedialog as fd
 import os
 import platform
 from PIL import Image, ImageTk
+import shutil
 
 class SecondaryWindow(Toplevel):
 
@@ -632,6 +633,36 @@ class MainWindow(tk.Tk):
             self.lbl_time.config(text=time_)
             self.txt_time.delete(0, END)
             self.txt_time.insert(0, time_)
+
+    def logo(self, target):
+        filetypes = [('Image files', '.jpg .jpeg .png')]
+        file_path = fd.askopenfilename(
+            title='Open a file', initialdir='/', filetypes=filetypes)
+
+        if file_path:
+            image = Image.open(file_path)
+            image.thumbnail((100, 100))  # Resize image if necessary
+            photo = ImageTk.PhotoImage(image)
+
+            if target == 'home_logo':
+                self.lbl_home.config(image=photo)
+                self.lbl_home.image = photo  # Keep a reference to avoid garbage collection
+            elif target == 'away_logo':
+                self.lbl_away.config(image=photo)
+                self.lbl_away.image = photo  # Keep a reference to avoid garbage collection
+
+            self.save_image(target, file_path)
+    
+    def save_image(self, target, file_path):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+
+        filename = os.path.basename(file_path)
+        tmp = os.path.splitext(filename)
+        tmp_name = target + tmp[1]
+
+        shutil.copy(file_path, os.path.join(self.path, tmp_name))
+        self.writeOutput(target, tmp_name)
 
 main_window = MainWindow()
 main_window.mainloop()
