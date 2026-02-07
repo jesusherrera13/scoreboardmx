@@ -43,6 +43,7 @@ class MainWindow(tk.Tk):
         self.path = "output"
         self.etiqueta = "Start"
         self.play = False
+        self.blink = True
         self.clock_asc = True
 
         self.home_name = ""
@@ -241,7 +242,7 @@ class MainWindow(tk.Tk):
         self.lbl_home.place(x=x+25, y=y+50)
 
         self.btn_homescore_add = Button(self, text="+", width=btn_width,
-                                command=lambda: self.scoreUpdate('home_score', 1))
+                                command=: self.scoreUpdate('home_score', 1))
         x = x + 165
         self.btn_homescore_add.place(x=x, y=y)
 
@@ -256,14 +257,14 @@ class MainWindow(tk.Tk):
         x = x + 45
 
         self.btn_homescore_substract = Button(
-            self, text="-", width=btn_width, command=lambda: self.scoreUpdate('home_score', -1))
+            self, text="-", width=btn_width, command=: self.scoreUpdate('home_score', -1))
         self.btn_homescore_substract.place(x=x, y=y)
 
         # TIME
         y = 70
         x = x + 50
         self.btn_time_minutes_add = Button(
-            text="+", width=btn_width, command=lambda: self.timeUpdate('minutos', 1))
+            text="+", width=btn_width, command=: self.timeUpdate('minutos', 1))
         self.btn_time_minutes_add.place(x=x, y=y)
 
         self.btn_time_minutes_substract = Button(
@@ -386,7 +387,7 @@ class MainWindow(tk.Tk):
                 if inc and self.segundos == 0:
                     if (self.minutos > 0):
                         self.minutos -= 1
-                    segundos = 59
+                    self.segundos = 59
 
             time_ = self.getTime()
             self.writeOutput('time', time_)
@@ -394,9 +395,21 @@ class MainWindow(tk.Tk):
             self.txt_time.delete(0, END)
             self.txt_time.insert(0, time_)
             self.after(1000, self.contador)
+
+            if self.segundos == 0 and self.minutos == 0:
+                self.lbl_time.config({"foreground":"#ff0000"})
+            else:
+                self.lbl_time.config({"foreground":"#000000"})
             
-            if (inc):
+            if inc:
                 self.segundos += 1 * shift
+            else:
+                if self.blink:
+                    self.lbl_time.config({"foreground":"#ff0000"})
+                    self.blink = False
+                else:
+                    self.lbl_time.config({"foreground":"#000000"})
+                    self.blink = True
 
 
     def writeOutput(self, target, value):
@@ -489,7 +502,7 @@ class MainWindow(tk.Tk):
                     self.txt_time.insert(0, self.getTime())
 
         if event.widget == self.txt_home_name:
-            self.writeOutput('home_name',self. txt_home_name.get())
+            self.writeOutput('home_name', self.txt_home_name.get())
         elif event.widget == self.txt_away_name:
             self.writeOutput('away_name', self.txt_away_name.get())
 
